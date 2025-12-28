@@ -1,15 +1,25 @@
 import { useState, useEffect } from 'react';
-import { Loader2 } from "lucide-react";
+import { Loader2, ExternalLink, Eye } from "lucide-react";
 
-import loadEvents  from '../../components/supabase';
+import { fetchEvents, incrementClickCount } from '../../components/supabase';
 
-interface Event {
-    id: number,
-    title: string,
-    url: string,
-    click_count: number,
-    event_name: string,
+interface Link {
+  id: number;
+  title: string;
+  url: string;
+  click_count: number;
+  event_name: string;
 }
+
+interface GroupedEvent {
+  eventName: string;
+  links: Link[];
+}
+
+const handleLinkClick = async (linkId: number, url: string) => {
+  await incrementClickCount(linkId);
+  window.open(url, '_blank', 'noopener,noreferrer');
+};
 
 const loadFonts = () => {
     const link = document.createElement('link');
@@ -22,31 +32,34 @@ const loadFonts = () => {
 
 const LandingPage = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [events, setEvents] = useState<Event[]>([]);
+    const [groupedEvents, setGroupedEvents] = useState<GroupedEvent[]>([]);
 
     useEffect(() => {
         const init = async () => {
             loadFonts();
-            const data = await loadEvents();
-            setEvents(data);
+            const data = await fetchEvents();
+            setGroupedEvents(data);
             setIsLoading(false);
         };
         
         init();
 
-        console.log(events);
+        console.log(groupedEvents);
     }, []);
 
     if (isLoading) {
         return (
-            <div className="text-center">
-                <Loader2 className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
-                <p className="text-gray-600">Loading photo albums...</p>
+        <div className="min-h-screen flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-12 h-12 animate-spin text-purple-600" />
+            <p className="text-lg text-gray-700 font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                Loading photo albums...
+            </p>
             </div>
-        )
+        </div>
+        );
     }
     
-
     return (
         /* Container */
         <div className="min-h-screen py-6 px-4 block">
@@ -63,6 +76,75 @@ const LandingPage = () => {
                 </h1>
             </div>
             
+            {/* Events Section */}
+            <div className="space-y-8">
+            {groupedEvents.length === 0 ? (
+                <div className="text-center py-12">
+                <p className="text-gray-500 text-lg" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    No albums available yet
+                </p>
+                </div>
+            ) : (
+                groupedEvents.map((event, idx) => (
+                <div key={idx} className="space-y-4">
+                    {/* Event Name */}
+                    <h2 
+                    className="text-2xl md:text-3xl font-semibold text-gray-800 pl-2"
+                    style={{ fontFamily: 'Ubuntu, sans-serif' }}
+                    >
+                    {event.eventName}
+                    </h2>
+
+                    {/* Links for this event */}
+                    <div className="space-y-3">
+                    {event.links.map((link) => (
+                        <button
+                        key={link.id}
+                        onClick={() => handleLinkClick(link.id, link.url)}
+                        className="w-full bg-white hover:bg-gray-50 border-2 border-gray-200 hover:border-purple-400 rounded-2xl p-5 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] group"
+                        >
+                        <div className="flex items-center justify-between">
+                            {/* Link Title */}
+                            <div className="flex items-center gap-3 flex-1">
+                            <div className="bg-gradient-to-br from-purple-500 to-pink-500 rounded-full p-2 group-hover:scale-110 transition-transform">
+                                <ExternalLink className="w-5 h-5 text-white" />
+                            </div>
+                            <span 
+                                className="text-lg font-semibold text-gray-800 text-left"
+                                style={{ fontFamily: 'Poppins, sans-serif' }}
+                            >
+                                {link.title}
+                            </span>
+                            </div>
+
+                            {/* Click Count */}
+                            <div className="flex items-center gap-2 bg-purple-100 px-4 py-2 rounded-full">
+                            <Eye className="w-4 h-4 text-purple-600" />
+                            <span 
+                                className="text-sm font-medium text-purple-700"
+                                style={{ fontFamily: 'Ubuntu, sans-serif' }}
+                            >
+                                {link.click_count}
+                            </span>
+                            </div>
+                        </div>
+                        </button>
+                    ))}
+                    </div>
+                </div>
+                ))
+            )}
+            </div>
+
+            {/* Footer */}
+            <div className="mt-16 text-center">
+            <p 
+                className="text-sm text-gray-500"
+                style={{ fontFamily: 'Poppins, sans-serif' }}
+            >
+                Made with ❤️ for memories
+            </p>
+            </div>
         </div>
     );
 }
