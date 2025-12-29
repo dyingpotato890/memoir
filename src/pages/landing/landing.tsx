@@ -18,8 +18,8 @@ interface GroupedEvent {
 }
 
 const handleLinkClick = async (linkId: number, url: string) => {
-    await incrementClickCount(linkId);
     window.open(url, '_blank', 'noopener,noreferrer');
+    incrementClickCount(linkId);
 };
 
 const loadFonts = () => {
