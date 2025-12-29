@@ -118,7 +118,3 @@ export const incrementClickCount = async (linkId: number) => {
     console.error('Error updating click count:', updateError);
   }
 };
-
-// export default fetchEvents;
-
-// fetchEvents()
