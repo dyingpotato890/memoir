@@ -69,6 +69,7 @@ const LandingPage = () => {
             <StarfieldBackground /> 
 
             <div className="min-h-screen relative z-10">
+                {/* Header */}
                 <div className="max-w-5xl mx-auto px-4 py-8 md:py-12">
                     <div className="text-center mb-12">
                         <h1 className='text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 text-5xl md:text-6xl mb-3 font-bold' style={{ fontFamily: "'BBH Bartle', sans-serif" }}>
@@ -79,6 +80,7 @@ const LandingPage = () => {
                         </h2>
                     </div>
 
+                    {/* Events */}
                     <div className="space-y-10">
                         {groupedEvents.length === 0 ? (
                             <div className="text-center py-16">
@@ -92,6 +94,7 @@ const LandingPage = () => {
                             groupedEvents.map((event, idx) => (
                                 <div key={idx} className="space-y-4">
                                     <div className="flex items-center gap-4 mb-6">
+                                        {/* Event name */}
                                         <div className="h-1 w-12 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full shadow-lg shadow-cyan-500/50"></div>
                                         <h2 
                                             className="text-3xl md:text-4xl font-bold text-white"
@@ -102,6 +105,7 @@ const LandingPage = () => {
                                         <div className="h-1 flex-1 bg-gradient-to-r from-blue-500 to-transparent rounded-full"></div>
                                     </div>
 
+                                    {/* Links list for this event */}
                                     <div className="space-y-3">
                                         {event.links.map((link) => (
                                             <button
@@ -111,10 +115,12 @@ const LandingPage = () => {
                                             >
                                                 <div className="flex items-center justify-between gap-4">
                                                     <div className="flex items-center gap-4 flex-1 min-w-0">
+                                                        {/* Icon container */}
                                                         <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300 shadow-lg shadow-cyan-500/50">
                                                             <ExternalLink className="w-6 h-6 text-white" strokeWidth={2.5} />
                                                         </div>
 
+                                                        {/* Link title text */}
                                                         <span 
                                                             className="text-lg md:text-xl font-semibold text-gray-100 text-left truncate"
                                                             style={{ fontFamily: 'Inter, sans-serif' }}
@@ -123,6 +129,7 @@ const LandingPage = () => {
                                                         </span>
                                                     </div>
 
+                                                    {/* Right: click count pill */}
                                                     <div className="flex-shrink-0 flex items-center gap-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-sm px-5 py-2.5 rounded-full border border-cyan-400/30">
                                                         <Eye className="w-4 h-4 text-cyan-400" strokeWidth={2.5} />
                                                         <span 
@@ -140,7 +147,8 @@ const LandingPage = () => {
                             ))
                         )}
                     </div>
-
+                    
+                    {/* Footer */}
                     <div className="mt-20 text-center">
                         <div className="inline-block bg-gray-900/60 backdrop-blur-sm px-8 py-3 rounded-full shadow-lg border border-gray-700">
                             <p 
