@@ -3,106 +3,107 @@ import type { GroupedEvent, Link } from "../types/types";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY! as string;
-const supabase = createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const groupLinksByEvent = (allLinks: Link[]): GroupedEvent[] => {
-  const groupedData: GroupedEvent[]  = []; 
+interface EventRecord {
+    id: string;
+    name: string;
+    start_date?: string;
+    end_date?: string;
+}
 
-  for (let i: number = 0; i < allLinks.length; i++) {
-    const event = allLinks[i];
-    const eventName = event.event_name;
+const groupLinksByEvent = (links: Link[], eventMeta: Record<string, EventRecord>): GroupedEvent[] => {
+    const grouped: Record<string, GroupedEvent> = {};
 
-    // console.log(event.event_name);
-    const group = groupedData.find(g => g.eventName === eventName);
-
-    if (group) {
-      group.links.push(event);
-    } else {
-      groupedData.push({
-        eventName,
-        links: [event],
-      });
+    for (const link of links) {
+        const name = link.event_name;
+        if (!grouped[name]) {
+            const meta = Object.values(eventMeta).find(e => e.name === name);
+            grouped[name] = {
+                eventName: name,
+                startDate: meta?.start_date,
+                endDate: meta?.end_date,
+                links: [],
+            };
+        }
+        grouped[name].links.push(link);
     }
-  }
 
-  return groupedData;
+    return Object.values(grouped);
 };
 
-export const fetchEvents = async () : Promise<GroupedEvent[]> => {
-    const eventMap: Record<string, string> = {};
+export const fetchEvents = async (): Promise<GroupedEvent[]> => {
+    // Fetch all links — now includes author and link_date
+    const { data: linksData, error: linksError } = await supabase
+        .from("links")
+        .select("id, title, url, click_count, event_id, author, link_date");
 
-    const { data, error } = await supabase.from("links").select("*");
-    if (!error) {
-      for (let i: number = 0; i < data.length; i++) {
-        const eventID = data[i].event_id;
+    if (linksError || !linksData) return [];
 
-        if (eventID in eventMap) {
-          data[i].event_name = eventMap[eventID];
+    // Collect unique event IDs
+    const eventIds = [...new Set(linksData.map((l) => l.event_id))];
 
-          delete data[i].event_id;
-        } else {
-          const { data: eventData, error: eventError } = await supabase
-            .from("events")
-            .select("name")
-            .eq('id', eventID)
-            .single();
+    // Batch fetch all events (includes start_date, end_date now)
+    const { data: eventsData, error: eventsError } = await supabase
+        .from("events")
+        .select("id, name, start_date, end_date")
+        .in("id", eventIds);
 
-          if (!eventError && eventData) {
-            const eventName = eventData.name;
+    if (eventsError || !eventsData) return [];
 
-            data[i].event_name = eventName;
-            eventMap[eventID] = eventName;
-
-            delete data[i].event_id;
-          }
-        }
-      }
-
-      const groupedEvents = groupLinksByEvent(data);
-
-      groupedEvents.sort((a, b) => 
-        a.eventName.localeCompare(b.eventName)
-      );
-
-      // Sort links within each event alphabetically by title
-      groupedEvents.forEach(event => {
-        event.links.sort((a, b) => 
-          a.title.localeCompare(b.title)
-        );
-      });
-
-      return groupedEvents;
-    } else {
-      data ?? [];
+    const eventMeta: Record<string, EventRecord> = {};
+    for (const e of eventsData) {
+        eventMeta[e.id] = e;
     }
 
-    return [];
+    // Attach event_name to each link
+    const links: Link[] = linksData.map((l) => ({
+        id: l.id,
+        title: l.title,
+        url: l.url,
+        click_count: l.click_count,
+        event_name: eventMeta[l.event_id]?.name ?? "Unknown",
+        author: l.author ?? undefined,
+        link_date: l.link_date ?? undefined,
+    }));
+
+    const groupedEvents = groupLinksByEvent(links, eventMeta);
+
+    // Sort events by start_date ascending (nulls last)
+    groupedEvents.sort((a, b) => {
+        if (!a.startDate && !b.startDate) return a.eventName.localeCompare(b.eventName);
+        if (!a.startDate) return 1;
+        if (!b.startDate) return -1;
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+    });
+
+    // Sort links within each event: by link_date asc, then title
+    groupedEvents.forEach((event) => {
+        event.links.sort((a, b) => {
+            if (a.link_date && b.link_date) {
+                const dateDiff = new Date(a.link_date).getTime() - new Date(b.link_date).getTime();
+                if (dateDiff !== 0) return dateDiff;
+            }
+            if (a.link_date && !b.link_date) return -1;
+            if (!a.link_date && b.link_date) return 1;
+            return a.title.localeCompare(b.title);
+        });
+    });
+
+    return groupedEvents;
 };
 
 export const incrementClickCount = async (linkId: number) => {
-  // Get the current click count
-  const { data: currentLink, error: fetchError } = await supabase
-    .from('links')
-    .select('click_count')
-    .eq('id', linkId)
-    .single();
+    const { data: currentLink, error: fetchError } = await supabase
+        .from("links")
+        .select("click_count")
+        .eq("id", linkId)
+        .single();
 
-  if (fetchError) {
-    console.error('Error fetching link:', fetchError);
-    return;
-  }
+    if (fetchError) return;
 
-  const newCount = currentLink.click_count + 1;
-
-  const { error: updateError } = await supabase
-    .from('links')
-    .update({ click_count: newCount })
-    .eq('id', linkId);
-
-  if (updateError) {
-    console.error('Error updating click count:', updateError);
-  }
+    await supabase
+        .from("links")
+        .update({ click_count: currentLink.click_count + 1 })
+        .eq("id", linkId);
 };
