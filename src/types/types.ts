@@ -10,3 +10,5 @@ export interface GroupedEvent {
     eventName: string;
     links: Link[];
 }
+
+export type EventLink = GroupedEvent['links'][number];
