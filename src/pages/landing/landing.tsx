@@ -3,19 +3,7 @@ import { Loader2, ExternalLink, Eye } from "lucide-react";
 
 import { fetchEvents, incrementClickCount } from '../../components/supabase';
 import StarfieldBackground from '../../components/background';
-
-interface Link {
-    id: number;
-    title: string;
-    url: string;
-    click_count: number;
-    event_name: string;
-}
-
-interface GroupedEvent {
-    eventName: string;
-    links: Link[];
-}
+import type { GroupedEvent } from '../../types/types';
 
 const handleLinkClick = async (linkId: number, url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import type { GroupedEvent, Link } from "../types/types";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY! as string;
@@ -6,19 +7,6 @@ const supabase = createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
-
-interface Link {
-  id: number;
-  title: string;
-  url: string;
-  click_count: number;
-  event_name: string;
-}
-
-interface GroupedEvent {
-  eventName: string;
-  links: Link[];
-}
 
 const groupLinksByEvent = (allLinks: Link[]): GroupedEvent[] => {
   const groupedData: GroupedEvent[]  = []; 
