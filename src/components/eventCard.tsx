@@ -32,14 +32,13 @@ const LinkRow = ({ link }: LinkRowProps) => (
 const shortDate = (d: string) =>
     new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
-// Formats just the month+day for range display on left: "14–17 Nov"
+// Formats just the day range for display: "14–17"
 const rangeShort = (start: string, end: string) => {
     const s = new Date(start);
     const e = new Date(end);
     const sDay = s.getDate();
     const eDay = e.getDate();
-    const month = e.toLocaleDateString('en-GB', { month: 'short' });
-    return `${sDay}–${eDay} ${month}`;
+    return `${sDay}–${eDay}`;
 };
 
 export const EventCard = ({ event }: Props) => {
@@ -64,38 +63,25 @@ export const EventCard = ({ event }: Props) => {
             : shortDate(event.startDate)
         : null;
 
-    // Month label (shown above the day number for single dates)
-    const monthLabel = event.startDate && !range
+    // Month label (shown above the day number)
+    const monthLabel = event.startDate
         ? new Date(event.startDate).toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()
         : null;
 
     return (
-        /*
-          Two-column layout:
-          [  date col  ] [ node ] [        card        ]
-          120px / 160px    9px      flex-1
-        */
         <div className="relative flex items-start gap-0 group">
-
             {/* ── Left: date label ── */}
-            <div className="w-[120px] md:w-[160px] shrink-0 flex flex-col items-end pr-5 pt-3 select-none">
+            <div className="w-[60px] md:w-[160px] shrink-0 flex flex-col items-end pr-3 md:pr-5 pt-3 select-none">
                 {dateLabel ? (
-                    range ? (
-                        /* Range: single compact string */
-                        <span className="text-sm font-bold text-gray-400 tracking-wide text-right leading-snug">
-                            {dateLabel}
+                    /* Unified stacked layout for both single dates and ranges */
+                    <div className="flex flex-col items-end leading-none gap-0.5">
+                        <span className="text-[11px] font-black tracking-[0.15em] text-cyan-500/60 uppercase">
+                            {monthLabel}
                         </span>
-                    ) : (
-                        /* Single date: stacked month / day */
-                        <div className="flex flex-col items-end leading-none gap-0.5">
-                            <span className="text-[11px] font-black tracking-[0.15em] text-cyan-500/60 uppercase">
-                                {monthLabel}
-                            </span>
-                            <span className="text-lg font-bold text-gray-300 tabular-nums">
-                                {new Date(event.startDate!).getDate()}
-                            </span>
-                        </div>
-                    )
+                        <span className="text-lg font-bold text-gray-300 tabular-nums">
+                            {range ? dateLabel : new Date(event.startDate!).getDate()}
+                        </span>
+                    </div>
                 ) : (
                     <span className="text-[10px] text-gray-700 italic">—</span>
                 )}
@@ -188,7 +174,7 @@ export const EventCard = ({ event }: Props) => {
                                 </div>
                             ) : (
                                 /* Flat grid */
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                                <div className={`grid grid-cols-1 ${event.links.length > 1 ? 'md:grid-cols-2' : ''} gap-2.5`}>
                                     {event.links.map(link => <LinkRow key={link.id} link={link} />)}
                                 </div>
                             )}

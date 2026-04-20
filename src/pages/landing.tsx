@@ -2,6 +2,7 @@ import StarfieldBackground from "../components/background";
 import { EventCard } from "../components/eventCard";
 import { PageFooter } from "../components/footer";
 import { PageHeader } from "../components/header";
+import { YearNav } from "../components/yearNav";
 import { LoadingScreen } from "../components/loading";
 import { useEvents } from "../hooks/useEvents";
 import { useFontLoader } from "../hooks/useFontLoader";
@@ -23,7 +24,7 @@ const groupEventsByYear = (events: GroupedEvent[]): Map<string, GroupedEvent[]> 
 const YearBreak = ({ year }: { year: string }) => (
     <div id={`year-${year}`} className="relative flex items-center mb-5 mt-1 first:mt-0 scroll-mt-24">
         {/* Date column — year label right-aligned */}
-        <div className="w-[120px] md:w-[160px] shrink-0 flex justify-end pr-5">
+        <div className="w-[60px] md:w-[160px] shrink-0 flex justify-end pr-5">
             <span
                 className="text-xl font-black tracking-[0.2em] uppercase text-cyan-500/50 select-none"
                 style={{ fontFamily: 'Inter, sans-serif' }}
@@ -45,32 +46,6 @@ const YearBreak = ({ year }: { year: string }) => (
     </div>
 );
 
-const YearNavigation = ({ years }: { years: string[] }) => {
-    const scrollToYear = (year: string) => {
-        const element = document.getElementById(`year-${year}`);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    };
-
-    if (years.length <= 1) return null;
-
-    return (
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
-            {years.map((year) => (
-                <button
-                    key={year}
-                    onClick={() => scrollToYear(year)}
-                    className="px-4 py-1.5 rounded-full bg-gray-900/40 backdrop-blur-md border border-gray-800 text-xs font-bold text-gray-400 hover:text-cyan-400 hover:border-cyan-500/30 hover:bg-cyan-500/5 transition-all duration-300 tracking-widest uppercase"
-                    style={{ fontFamily: 'Inter, sans-serif' }}
-                >
-                    {year}
-                </button>
-            ))}
-        </div>
-    );
-};
-
 const LandingPage = () => {
     useFontLoader();
     const { isLoading, groupedEvents } = useEvents();
@@ -90,9 +65,9 @@ const LandingPage = () => {
             <div className="min-h-screen relative z-10">
                 <div className="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-16 pb-12 md:pb-24">
                     <PageHeader />
-                    <YearNavigation years={sortedYears} />
+                    {/* <YearNav years={sortedYears} /> */}
 
-                    <div className="relative mt-16 md:mt-24">
+                    <div className="relative mt-8 md:mt-12">
                         {groupedEvents.length === 0 ? (
                             <div className="text-center py-20">
                                 <div className="bg-gray-900/40 backdrop-blur-md rounded-3xl border border-gray-800 p-12 max-w-md mx-auto">
@@ -113,7 +88,7 @@ const LandingPage = () => {
                                 */}
                                 <div
                                     className="absolute top-0 bottom-0 pointer-events-none"
-                                    style={{ left: 124 }}
+                                    style={{ left: 64 }}
                                 >
                                     <div className="md:hidden w-px h-full bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent" />
                                 </div>
