@@ -28,17 +28,13 @@ const LinkRow = ({ link }: LinkRowProps) => (
     </div>
 );
 
-// Formats a date string as "14 Nov" style
 const shortDate = (d: string) =>
     new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 
-// Formats just the day range for display: "14–17"
 const rangeShort = (start: string, end: string) => {
     const s = new Date(start);
     const e = new Date(end);
-    const sDay = s.getDate();
-    const eDay = e.getDate();
-    return `${sDay}–${eDay}`;
+    return `${s.getDate()}–${e.getDate()}`;
 };
 
 export const EventCard = ({ event }: Props) => {
@@ -56,14 +52,12 @@ export const EventCard = ({ event }: Props) => {
         return new Date(a).getTime() - new Date(b).getTime();
     });
 
-    // What to show in the left date column
     const dateLabel = event.startDate
         ? range
             ? rangeShort(event.startDate, event.endDate!)
             : shortDate(event.startDate)
         : null;
 
-    // Month label (shown above the day number)
     const monthLabel = event.startDate
         ? new Date(event.startDate).toLocaleDateString('en-GB', { month: 'short' }).toUpperCase()
         : null;
@@ -73,12 +67,19 @@ export const EventCard = ({ event }: Props) => {
             {/* ── Left: date label ── */}
             <div className="w-[60px] md:w-[160px] shrink-0 flex flex-col items-end pr-3 md:pr-5 pt-3 select-none">
                 {dateLabel ? (
-                    /* Unified stacked layout for both single dates and ranges */
                     <div className="flex flex-col items-end leading-none gap-0.5">
-                        <span className="text-[11px] font-black tracking-[0.15em] text-cyan-500/60 uppercase">
+                        {/* Month label: hidden on mobile, shown on md+ */}
+                        <span className="hidden md:block text-[11px] font-black tracking-[0.15em] text-cyan-500/60 uppercase">
                             {monthLabel}
                         </span>
-                        <span className="text-lg font-bold text-gray-300 tabular-nums">
+                        {/* On mobile: show "14 Nov" compact, on md+: just the day number */}
+                        <span className="block md:hidden text-[11px] font-bold text-gray-400 tabular-nums leading-none">
+                            {range
+                                ? dateLabel
+                                : new Date(event.startDate!).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                            }
+                        </span>
+                        <span className="hidden md:block text-lg font-bold text-gray-300 tabular-nums">
                             {range ? dateLabel : new Date(event.startDate!).getDate()}
                         </span>
                     </div>
@@ -89,7 +90,6 @@ export const EventCard = ({ event }: Props) => {
 
             {/* ── Centre: timeline node ── */}
             <div className="relative z-20 shrink-0 flex flex-col items-center" style={{ width: 9 }}>
-                {/* Node sits at the top of the card */}
                 <div className="mt-[14px]">
                     <div className="absolute inset-0 rounded-full bg-cyan-400 blur-sm opacity-30 group-hover:opacity-70 transition-opacity duration-400 w-3.5 h-3.5 -translate-x-[3px] -translate-y-[1px]" />
                     <div className="w-[9px] h-[9px] rounded-full bg-gray-900 border-2 border-cyan-400/70 relative z-10 group-hover:border-cyan-300 group-hover:scale-125 transition-all duration-300 shadow-[0_0_8px_rgba(34,211,238,0.35)]" />
@@ -97,24 +97,25 @@ export const EventCard = ({ event }: Props) => {
             </div>
 
             {/* ── Right: card ── */}
-            <div className="flex-1 ml-4 min-w-0 pb-3">
+            <div className="flex-1 ml-3 md:ml-4 min-w-0 pb-3">
                 <div className="bg-gray-900/50 backdrop-blur-md rounded-xl border border-gray-800/60 overflow-hidden transition-all duration-300 group-hover:border-cyan-500/20 group-hover:shadow-[0_0_24px_rgba(34,211,238,0.04)]">
 
                     {/* Card header */}
                     <button
                         onClick={() => setExpanded(e => !e)}
-                        className="w-full text-left px-4 py-3 flex items-center justify-between gap-3 hover:bg-white/[0.015] transition-colors duration-200"
+                        className="w-full text-left px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between gap-2 md:gap-3 hover:bg-white/[0.015] transition-colors duration-200"
                     >
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-x-2 md:gap-x-3 gap-y-1 min-w-0">
                             <h2
-                                className="text-base md:text-lg font-black text-white tracking-tight group-hover:text-cyan-100 transition-colors duration-300 leading-snug truncate"
+                                className="text-sm md:text-lg font-black text-white tracking-tight group-hover:text-cyan-100 transition-colors duration-300 leading-snug truncate"
                                 style={{ fontFamily: 'Inter, sans-serif' }}
                             >
                                 {event.eventName}
                             </h2>
 
+                            {/* Relative time badge: hidden on mobile */}
                             {relativeTime && (
-                                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 shrink-0">
+                                <div className="hidden sm:flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 shrink-0">
                                     <Clock className="w-2.5 h-2.5 text-cyan-400" />
                                     <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider tabular-nums">
                                         {relativeTime}
@@ -123,7 +124,7 @@ export const EventCard = ({ event }: Props) => {
                             )}
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
                             <span className="text-[10px] text-gray-700 font-medium tabular-nums hidden sm:block">
                                 {event.links.length} link{event.links.length !== 1 ? 's' : ''}
                             </span>
@@ -137,16 +138,15 @@ export const EventCard = ({ event }: Props) => {
 
                     {/* Card body */}
                     {expanded && (
-                        <div className="border-t border-gray-800/50 px-4 py-3">
+                        <div className="border-t border-gray-800/50 px-3 md:px-4 py-2.5 md:py-3">
                             {hasDayGrouping ? (
-                                /* Day-grouped: two-column within the card */
-                                <div className="space-y-4">
+                                <div className="space-y-3 md:space-y-4">
                                     {sortedDateKeys.map((dateKey) => {
                                         const dayLinks = linksByDate.get(dateKey)!;
                                         return (
-                                            <div key={dateKey ?? '__undated'} className="flex gap-3">
-                                                {/* Day label */}
-                                                <div className="w-14 shrink-0 pt-0.5">
+                                            <div key={dateKey ?? '__undated'} className="flex gap-2 md:gap-3">
+                                                {/* Day label: hidden on mobile, shown md+ */}
+                                                <div className="hidden md:block w-14 shrink-0 pt-0.5">
                                                     {dateKey ? (
                                                         <div className="flex flex-col gap-0.5">
                                                             <span className="text-[10px] font-black text-cyan-400/70 uppercase tracking-widest">
@@ -161,11 +161,11 @@ export const EventCard = ({ event }: Props) => {
                                                     )}
                                                 </div>
 
-                                                {/* Divider */}
-                                                <div className="w-px bg-gray-800/80 self-stretch" />
+                                                {/* Divider: only shown md+ alongside day label */}
+                                                <div className="hidden md:block w-px bg-gray-800/80 self-stretch" />
 
-                                                {/* Links */}
-                                                <div className="flex-1 flex flex-col gap-2.5 min-w-0">
+                                                {/* Links — full width on mobile */}
+                                                <div className="flex-1 flex flex-col gap-2 md:gap-2.5 min-w-0">
                                                     {dayLinks.map(link => <LinkRow key={link.id} link={link} />)}
                                                 </div>
                                             </div>
@@ -173,8 +173,7 @@ export const EventCard = ({ event }: Props) => {
                                     })}
                                 </div>
                             ) : (
-                                /* Flat grid */
-                                <div className={`grid grid-cols-1 ${event.links.length > 1 ? 'md:grid-cols-2' : ''} gap-2.5`}>
+                                <div className={`grid grid-cols-1 ${event.links.length > 1 ? 'md:grid-cols-2' : ''} gap-2 md:gap-2.5`}>
                                     {event.links.map(link => <LinkRow key={link.id} link={link} />)}
                                 </div>
                             )}

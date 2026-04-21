@@ -8,7 +8,6 @@ import { useEvents } from "../hooks/useEvents";
 import { useFontLoader } from "../hooks/useFontLoader";
 import type { GroupedEvent } from "../types/types";
 
-// Groups events by year (based on startDate, fallback to endDate, fallback to "Undated")
 const groupEventsByYear = (events: GroupedEvent[]): Map<string, GroupedEvent[]> => {
     const map = new Map<string, GroupedEvent[]>();
     for (const event of events) {
@@ -20,20 +19,17 @@ const groupEventsByYear = (events: GroupedEvent[]): Map<string, GroupedEvent[]> 
     return map;
 };
 
-// The year separator — a horizontal rule with the year label bridging the timeline
 const YearBreak = ({ year }: { year: string }) => (
     <div id={`year-${year}`} className="relative flex items-center mb-5 mt-1 first:mt-0 scroll-mt-24">
-        {/* Date column — year label right-aligned */}
-        <div className="w-[60px] md:w-[160px] shrink-0 flex justify-end pr-5">
+        <div className="w-[60px] md:w-[160px] shrink-0 flex justify-end pr-3 md:pr-5">
             <span
-                className="text-xl font-black tracking-[0.2em] uppercase text-cyan-500/50 select-none"
+                className="text-sm md:text-xl font-black tracking-[0.2em] uppercase text-cyan-500/50 select-none"
                 style={{ fontFamily: 'Inter, sans-serif' }}
             >
                 {year}
             </span>
         </div>
 
-        {/* Diamond node on the line */}
         <div className="relative z-20 shrink-0 w-[9px] h-[9px] flex items-center justify-center">
             <div
                 className="w-[7px] h-[7px] bg-gray-900 border border-cyan-400/50 relative z-10 shadow-[0_0_6px_rgba(34,211,238,0.25)]"
@@ -41,7 +37,6 @@ const YearBreak = ({ year }: { year: string }) => (
             />
         </div>
 
-        {/* Horizontal rule to the right */}
         <div className="flex-1 ml-4 h-px bg-gradient-to-r from-cyan-500/25 via-gray-700/30 to-transparent" />
     </div>
 );
@@ -63,7 +58,7 @@ const LandingPage = () => {
         <>
             <StarfieldBackground />
             <div className="min-h-screen relative z-10">
-                <div className="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-16 pb-12 md:pb-24">
+                <div className="max-w-7xl mx-auto px-3 md:px-8 pt-8 md:pt-16 pb-12 md:pb-24">
                     <PageHeader />
                     {/* <YearNav years={sortedYears} /> */}
 
@@ -82,21 +77,19 @@ const LandingPage = () => {
                         ) : (
                             <div className="relative">
                                 {/*
-                                  Single continuous vertical line.
-                                  Left offset = date column width + half the node (4px to center).
-                                  Mobile: 120px, md: 160px
+                                  Timeline line — bumped from cyan-500/20 → cyan-500/35 for slightly more visibility
                                 */}
                                 <div
                                     className="absolute top-0 bottom-0 pointer-events-none"
                                     style={{ left: 64 }}
                                 >
-                                    <div className="md:hidden w-px h-full bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent" />
+                                    <div className="md:hidden w-px h-full bg-gradient-to-b from-transparent via-cyan-500/35 to-transparent" />
                                 </div>
                                 <div
                                     className="absolute top-0 bottom-0 pointer-events-none"
                                     style={{ left: 164 }}
                                 >
-                                    <div className="hidden md:block w-px h-full bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent" />
+                                    <div className="hidden md:block w-px h-full bg-gradient-to-b from-transparent via-cyan-500/35 to-transparent" />
                                 </div>
 
                                 <div className="space-y-0">
