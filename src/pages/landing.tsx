@@ -2,7 +2,7 @@ import StarfieldBackground from "../components/background";
 import { EventCard } from "../components/eventCard";
 import { PageFooter } from "../components/footer";
 import { PageHeader } from "../components/header";
-import { YearNav } from "../components/yearNav";
+// import { YearNav } from "../components/yearNav";
 import { LoadingScreen } from "../components/loading";
 import { useEvents } from "../hooks/useEvents";
 import { useFontLoader } from "../hooks/useFontLoader";
