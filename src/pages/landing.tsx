@@ -1,12 +1,15 @@
+import { useState } from 'react';
+
 import StarfieldBackground from "../components/background";
 import { EventCard } from "../components/eventCard";
 import { PageFooter } from "../components/footer";
 import { PageHeader } from "../components/header";
-// import { YearNav } from "../components/yearNav";
 import { LoadingScreen } from "../components/loading";
+import { ReportPage } from "../pages/report";
 import { useEvents } from "../hooks/useEvents";
 import { useFontLoader } from "../hooks/useFontLoader";
 import type { GroupedEvent } from "../types/types";
+import { ReportSnackbar } from '../components/snackbar';
 
 const groupEventsByYear = (events: GroupedEvent[]): Map<string, GroupedEvent[]> => {
     const map = new Map<string, GroupedEvent[]>();
@@ -29,14 +32,12 @@ const YearBreak = ({ year }: { year: string }) => (
                 {year}
             </span>
         </div>
-
         <div className="relative z-20 shrink-0 w-[9px] h-[9px] flex items-center justify-center">
             <div
                 className="w-[7px] h-[7px] bg-gray-900 border border-cyan-400/50 relative z-10 shadow-[0_0_6px_rgba(34,211,238,0.25)]"
                 style={{ transform: 'rotate(45deg)' }}
             />
         </div>
-
         <div className="flex-1 ml-4 h-px bg-gradient-to-r from-cyan-500/25 via-gray-700/30 to-transparent" />
     </div>
 );
@@ -45,7 +46,24 @@ const LandingPage = () => {
     useFontLoader();
     const { isLoading, groupedEvents } = useEvents();
 
+    // null = main page, string = report page open for that event
+    const [reportingEvent, setReportingEvent] = useState<string | null>(null);
+    const [showSnackbar, setShowSnackbar] = useState(false);
+
     if (isLoading) return <LoadingScreen />;
+
+    // Show report page
+    if (reportingEvent !== null) {
+        return (
+            <ReportPage
+                eventName={reportingEvent}
+                onBack={(submitted) => {
+                    setReportingEvent(null);
+                    if (submitted) setShowSnackbar(true);
+                }}
+            />
+        );
+    }
 
     const byYear = groupEventsByYear(groupedEvents);
     const sortedYears = [...byYear.keys()].sort((a, b) => {
@@ -60,7 +78,6 @@ const LandingPage = () => {
             <div className="min-h-screen relative z-10">
                 <div className="max-w-7xl mx-auto px-3 md:px-8 pt-8 md:pt-16 pb-12 md:pb-24">
                     <PageHeader />
-                    {/* <YearNav years={sortedYears} /> */}
 
                     <div className="relative mt-8 md:mt-12">
                         {groupedEvents.length === 0 ? (
@@ -76,19 +93,10 @@ const LandingPage = () => {
                             </div>
                         ) : (
                             <div className="relative">
-                                {/*
-                                  Timeline line — bumped from cyan-500/20 → cyan-500/35 for slightly more visibility
-                                */}
-                                <div
-                                    className="absolute top-0 bottom-0 pointer-events-none"
-                                    style={{ left: 64 }}
-                                >
+                                <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: 64 }}>
                                     <div className="md:hidden w-px h-full bg-gradient-to-b from-transparent via-cyan-500/35 to-transparent" />
                                 </div>
-                                <div
-                                    className="absolute top-0 bottom-0 pointer-events-none"
-                                    style={{ left: 164 }}
-                                >
+                                <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: 164 }}>
                                     <div className="hidden md:block w-px h-full bg-gradient-to-b from-transparent via-cyan-500/35 to-transparent" />
                                 </div>
 
@@ -98,7 +106,11 @@ const LandingPage = () => {
                                             <YearBreak year={year} />
                                             <div className="space-y-2 mb-10">
                                                 {byYear.get(year)!.map((event, idx) => (
-                                                    <EventCard key={idx} event={event} />
+                                                    <EventCard
+                                                        key={idx}
+                                                        event={event}
+                                                        onReport={(name) => setReportingEvent(name)}
+                                                    />
                                                 ))}
                                             </div>
                                         </div>
@@ -111,6 +123,8 @@ const LandingPage = () => {
                     <PageFooter />
                 </div>
             </div>
+
+            {showSnackbar && <ReportSnackbar onDismiss={() => setShowSnackbar(false)} />}
         </>
     );
 };

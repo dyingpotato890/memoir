@@ -4,14 +4,14 @@ export interface Link {
     url: string;
     click_count: number;
     event_name: string;
-    author?: string;       // nullable — per-link attribution
-    link_date?: string;    // nullable — day-specific date within a range event (e.g. IV day 1, day 2)
+    author?: string;
+    link_date?: string;
 }
 
 export interface GroupedEvent {
     eventName: string;
-    startDate?: string;    // from events table
-    endDate?: string;      // from events table
+    startDate?: string;
+    endDate?: string;
     links: Link[];
 }
 

@@ -1,16 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 import type { GroupedEvent, Link } from "../types/types";
+import type { EventRecord, ReportItem } from "../types/db";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY! as string;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-interface EventRecord {
-    id: string;
-    name: string;
-    start_date?: string;
-    end_date?: string;
-}
 
 const groupLinksByEvent = (links: Link[], eventMeta: Record<string, EventRecord>): GroupedEvent[] => {
     const grouped: Record<string, GroupedEvent> = {};
@@ -33,17 +27,14 @@ const groupLinksByEvent = (links: Link[], eventMeta: Record<string, EventRecord>
 };
 
 export const fetchEvents = async (): Promise<GroupedEvent[]> => {
-    // Fetch all links — now includes author and link_date
     const { data: linksData, error: linksError } = await supabase
         .from("links")
         .select("id, title, url, click_count, event_id, author, link_date");
 
     if (linksError || !linksData) return [];
 
-    // Collect unique event IDs
     const eventIds = [...new Set(linksData.map((l) => l.event_id))];
 
-    // Batch fetch all events (includes start_date, end_date now)
     const { data: eventsData, error: eventsError } = await supabase
         .from("events")
         .select("id, name, start_date, end_date")
@@ -56,7 +47,6 @@ export const fetchEvents = async (): Promise<GroupedEvent[]> => {
         eventMeta[e.id] = e;
     }
 
-    // Attach event_name to each link
     const links: Link[] = linksData.map((l) => ({
         id: l.id,
         title: l.title,
@@ -69,7 +59,6 @@ export const fetchEvents = async (): Promise<GroupedEvent[]> => {
 
     const groupedEvents = groupLinksByEvent(links, eventMeta);
 
-    // Sort events by start_date ascending (nulls last)
     groupedEvents.sort((a, b) => {
         if (!a.startDate && !b.startDate) return a.eventName.localeCompare(b.eventName);
         if (!a.startDate) return 1;
@@ -77,7 +66,6 @@ export const fetchEvents = async (): Promise<GroupedEvent[]> => {
         return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
     });
 
-    // Sort links within each event: by link_date asc, then title
     groupedEvents.forEach((event) => {
         event.links.sort((a, b) => {
             if (a.link_date && b.link_date) {
@@ -106,4 +94,25 @@ export const incrementClickCount = async (linkId: number) => {
         .from("links")
         .update({ click_count: currentLink.click_count + 1 })
         .eq("id", linkId);
+};
+
+export const submitReport = async (eventName: string, items: ReportItem[]): Promise<void> => {
+    const { data: report, error: reportError } = await supabase
+        .from("reports")
+        .insert({ event_name: eventName })
+        .select("id")
+        .single();
+
+    if (reportError || !report) throw new Error(reportError?.message ?? "Failed to create report");
+
+    const itemRows = items.map(item => ({
+        report_id: report.id,
+        url: item.url,
+        reason: item.reason,
+        reporter_name: item.reporter_name,
+    }));
+
+    const { error: itemsError } = await supabase.from("report_items").insert(itemRows);
+
+    if (itemsError) throw new Error(itemsError.message);
 };
