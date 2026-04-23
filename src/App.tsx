@@ -1,5 +1,5 @@
 import './App.css'
-import LandingPage from './pages/landing/landing'
+import LandingPage from './pages/landing'
 import { Analytics } from "@vercel/analytics/react"
 
 function App() {
