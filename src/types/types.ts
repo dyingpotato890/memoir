@@ -3,6 +3,7 @@ export interface Link {
     title: string;
     url: string;
     click_count: number;
+    event_id: string;
     event_name: string;
     author?: string;
     link_date?: string;

@@ -6,21 +6,26 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY! as string;
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const groupLinksByEvent = (links: Link[], eventMeta: Record<string, EventRecord>): GroupedEvent[] => {
+const groupLinksByEvent = (
+    links: Link[],
+    eventMeta: Record<string, EventRecord>
+): GroupedEvent[] => {
     const grouped: Record<string, GroupedEvent> = {};
 
     for (const link of links) {
-        const name = link.event_name;
-        if (!grouped[name]) {
-            const meta = Object.values(eventMeta).find(e => e.name === name);
-            grouped[name] = {
-                eventName: name,
+        const eventId = link.event_id;
+
+        if (!grouped[eventId]) {
+            const meta = eventMeta[eventId];
+
+            grouped[eventId] = {
+                eventName: meta?.name ?? "Unknown",
                 startDate: meta?.start_date,
                 endDate: meta?.end_date,
                 links: [],
             };
         }
-        grouped[name].links.push(link);
+        grouped[eventId].links.push(link);
     }
 
     return Object.values(grouped);
@@ -52,6 +57,7 @@ export const fetchEvents = async (): Promise<GroupedEvent[]> => {
         title: l.title,
         url: l.url,
         click_count: l.click_count,
+        event_id: l.event_id,
         event_name: eventMeta[l.event_id]?.name ?? "Unknown",
         author: l.author ?? undefined,
         link_date: l.link_date ?? undefined,
