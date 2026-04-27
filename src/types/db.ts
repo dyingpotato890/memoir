@@ -1,7 +1,6 @@
 export interface ReportItem {
-    url: string;
+    filename: string;
     reason: string;
-    reporter_name: string | null;
 }
 
 export interface EventRecord {
