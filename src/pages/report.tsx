@@ -34,10 +34,13 @@ interface Props {
 }
 
 export const ReportPage = ({ eventName, onBack }: Props) => {
+    // --- State ---
     const [rows, setRows] = useState<FileRow[]>([emptyRow()]);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+
+    // --- Logic & Validation ---
     const updateRow = (id: number, field: keyof FileRow, value: string) => {
         setRows(prev => prev.map(r => {
             if (r.id !== id) return r;
@@ -61,6 +64,8 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
     const addRow = () => setRows(prev => [...prev, emptyRow()]);
     const removeRow = (id: number) => rows.length > 1 && setRows(prev => prev.filter(r => r.id !== id));
 
+
+    // --- Submission ---
     const handleSubmit = async () => {
         const validated = rows.map(r => ({
             ...r,
@@ -97,8 +102,8 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
             <StarfieldBackground />
 
             <div className="relative z-10 max-w-4xl mx-auto px-4 py-8 md:py-12 flex flex-col min-h-[100dvh]">
+                {/* Navigation */}
 
-                {/* Top Nav */}
                 <nav className="flex items-center justify-between mb-12">
                     <button
                         onClick={() => onBack(false)}
@@ -112,10 +117,9 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
                     </div>
                 </nav>
 
-                {/* Main Glass Terminal */}
+                {/* --- Terminal Window --- */}
                 <main className="flex-1 flex flex-col bg-gray-900/50 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
 
-                    {/* Terminal Header */}
                     <header className="px-6 py-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
@@ -126,7 +130,7 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
                         </div>
                     </header>
 
-                    {/* Scrollable Area */}
+                    {/* Items List */}
                     <div className="flex-1 overflow-y-auto p-6 space-y-8">
                         <AnimatePresence initial={false}>
                             {rows.map((row, index) => (
@@ -138,7 +142,6 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
                                     className="relative grid grid-cols-1 md:grid-cols-[1fr_auto] gap-6"
                                 >
                                     <div className="space-y-4">
-                                        {/* Filename input */}
                                         <div className="flex items-start gap-3 group">
                                             <div className="text-xs font-mono text-white/20 group-focus-within:text-cyan-400 transition-colors pt-2.5">
                                                 {String(index + 1).padStart(2, '0')}
@@ -173,7 +176,6 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
                                             </div>
                                         </div>
 
-                                        {/* Reason chips */}
                                         <div className="flex flex-wrap gap-2 ml-7">
                                             {REASONS.map((reason) => (
                                                 <button
@@ -191,7 +193,6 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
                                         </div>
                                     </div>
 
-                                    {/* Row actions */}
                                     <div className="flex md:flex-col items-center justify-end gap-2">
                                         {rows.length > 1 && (
                                             <button
@@ -206,7 +207,6 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
                             ))}
                         </AnimatePresence>
 
-                        {/* Add row */}
                         <button
                             onClick={addRow}
                             className="ml-7 flex items-center gap-2 text-white/30 hover:text-cyan-400 transition-colors group py-2"
@@ -216,7 +216,7 @@ export const ReportPage = ({ eventName, onBack }: Props) => {
                         </button>
                     </div>
 
-                    {/* Footer */}
+                    {/* Footer / Submission */}
                     <footer className="p-6 bg-black/40 border-t border-white/5">
                         <div className="flex flex-col md:flex-row items-center gap-4">
                             <div className="flex-1 flex items-start gap-3 text-white/40">

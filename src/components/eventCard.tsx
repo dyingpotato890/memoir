@@ -9,6 +9,7 @@ interface Props {
     onReport: (eventName: string) => void;
 }
 
+// --- Helpers ---
 const groupLinksByDate = (links: Link[]): Map<string | null, Link[]> => {
     const map = new Map<string | null, Link[]>();
     for (const link of links) {
@@ -39,6 +40,7 @@ const rangeShort = (start: string, end: string) => {
 };
 
 export const EventCard = ({ event, onReport }: Props) => {
+    // --- Logic ---
     const [expanded, setExpanded] = useState(true);
 
     const range = isRange(event);
@@ -65,7 +67,7 @@ export const EventCard = ({ event, onReport }: Props) => {
 
     return (
         <div className="relative flex items-start gap-0 group">
-            {/* Left: date label */}
+            {/* --- Date Column --- */}
             <div className="w-[60px] md:w-[160px] shrink-0 flex flex-col items-end pr-3 md:pr-5 pt-3 select-none">
                 {dateLabel ? (
                     <div className="flex flex-col items-end leading-none gap-0.5">
@@ -87,7 +89,7 @@ export const EventCard = ({ event, onReport }: Props) => {
                 )}
             </div>
 
-            {/* Centre: timeline node */}
+            {/* --- Timeline Node --- */}
             <div className="relative z-20 shrink-0 flex flex-col items-center" style={{ width: 9 }}>
                 <div className="mt-[14px]">
                     <div className="absolute inset-0 rounded-full bg-cyan-400 blur-sm opacity-30 group-hover:opacity-70 transition-opacity duration-400 w-3.5 h-3.5 -translate-x-[3px] -translate-y-[1px]" />
@@ -95,13 +97,11 @@ export const EventCard = ({ event, onReport }: Props) => {
                 </div>
             </div>
 
-            {/* Right: card */}
+            {/* --- Card Content --- */}
             <div className="flex-1 ml-3 md:ml-4 min-w-0 pb-3">
                 <div className="bg-gray-900/50 backdrop-blur-md rounded-xl border border-gray-800/60 overflow-hidden transition-all duration-300 group-hover:border-cyan-500/20 group-hover:shadow-[0_0_24px_rgba(34,211,238,0.04)]">
 
-                    {/* Card header row */}
                     <div className="flex items-center">
-                        {/* Expand/collapse toggle */}
                         <button
                             onClick={() => setExpanded(e => !e)}
                             className="flex-1 min-w-0 text-left px-3 md:px-4 py-2.5 md:py-3 flex items-center justify-between gap-2 md:gap-3 hover:bg-white/[0.015] transition-colors duration-200"
@@ -136,7 +136,6 @@ export const EventCard = ({ event, onReport }: Props) => {
                             </div>
                         </button>
 
-                        {/* Report button */}
                         <div className="shrink-0 pr-2.5 md:pr-3">
                             <button
                                 onClick={() => onReport(event.eventName)}
@@ -148,7 +147,6 @@ export const EventCard = ({ event, onReport }: Props) => {
                         </div>
                     </div>
 
-                    {/* Card body */}
                     {expanded && (
                         <div className="border-t border-gray-800/50 px-3 md:px-4 py-2.5 md:py-3">
                             {hasDayGrouping ? (
