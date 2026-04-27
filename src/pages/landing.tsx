@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import StarfieldBackground from "../components/background";
 import { EventCard } from "../components/eventCard";
@@ -46,19 +46,33 @@ const LandingPage = () => {
     useFontLoader();
     const { isLoading, groupedEvents } = useEvents();
 
-    // null = main page, string = report page open for that event
     const [reportingEvent, setReportingEvent] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState(false);
 
+    // Push a history entry when opening the report page so the browser
+    // back button can close it instead of leaving the site
+    const openReport = (name: string) => {
+        window.history.pushState({ report: name }, '');
+        setReportingEvent(name);
+    };
+
+    // Listen for browser back — pop closes the report page
+    useEffect(() => {
+        const handlePop = () => setReportingEvent(null);
+        window.addEventListener('popstate', handlePop);
+        return () => window.removeEventListener('popstate', handlePop);
+    }, []);
+
     if (isLoading) return <LoadingScreen />;
 
-    // Show report page
     if (reportingEvent !== null) {
         return (
             <ReportPage
                 eventName={reportingEvent}
                 onBack={(submitted) => {
-                    setReportingEvent(null);
+                    // If user clicks the UI back button, pop the history entry
+                    // we pushed so the browser state stays in sync
+                    window.history.back();
                     if (submitted) setShowSnackbar(true);
                 }}
             />
@@ -109,7 +123,7 @@ const LandingPage = () => {
                                                     <EventCard
                                                         key={idx}
                                                         event={event}
-                                                        onReport={(name) => setReportingEvent(name)}
+                                                        onReport={openReport}
                                                     />
                                                 ))}
                                             </div>
