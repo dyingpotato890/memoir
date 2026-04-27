@@ -113,9 +113,8 @@ export const submitReport = async (eventName: string, items: ReportItem[]): Prom
 
     const itemRows = items.map(item => ({
         report_id: report.id,
-        url: item.url,
+        filename: item.filename,
         reason: item.reason,
-        reporter_name: item.reporter_name,
     }));
 
     const { error: itemsError } = await supabase.from("report_items").insert(itemRows);
