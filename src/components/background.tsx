@@ -13,7 +13,6 @@ const StarfieldBackground = () => {
     const ctx = context;
     const cvs = canvas;
 
-    // Configuration
     const STAR_COLOR = '#fff';
     const STAR_SIZE = 3;
     const STAR_MIN_SCALE = 0.2;
@@ -39,7 +38,6 @@ const StarfieldBackground = () => {
 
     let touchInput = false;
 
-    // Generate stars
     function generate() {
       for (let i = 0; i < STAR_COUNT; i++) {
         stars.push({
@@ -50,13 +48,11 @@ const StarfieldBackground = () => {
       }
     }
 
-    // Place star randomly
     function placeStar(star: Star) {
       star.x = Math.random() * width;
       star.y = Math.random() * height;
     }
 
-    // Recycle stars that go off screen
     function recycleStar(star: Star) {
       let direction = 'z';
 
@@ -100,7 +96,6 @@ const StarfieldBackground = () => {
       }
     }
 
-    // Resize canvas
     function resize() {
       scale = window.devicePixelRatio || 1;
 
@@ -113,7 +108,6 @@ const StarfieldBackground = () => {
       stars.forEach(placeStar);
     }
 
-    // Update star positions
     function update() {
       velocity.tx *= 0.96;
       velocity.ty *= 0.96;
@@ -129,7 +123,6 @@ const StarfieldBackground = () => {
         star.y += (star.y - height / 2) * velocity.z * star.z;
         star.z += velocity.z;
 
-        // Recycle when out of bounds
         if (
           star.x < -OVERFLOW_THRESHOLD ||
           star.x > width + OVERFLOW_THRESHOLD ||
@@ -141,7 +134,6 @@ const StarfieldBackground = () => {
       });
     }
 
-    // Render stars
     function render() {
         stars.forEach((star) => {
             ctx.beginPath();
@@ -165,7 +157,6 @@ const StarfieldBackground = () => {
         });
     }
 
-    // Animation loop
     function step() {
         ctx.clearRect(0, 0, width, height);
         update();
@@ -173,7 +164,6 @@ const StarfieldBackground = () => {
         requestAnimationFrame(step);
     }
 
-    // Move pointer handler
     function movePointer(x: number, y: number) {
       if (typeof pointerX === 'number' && typeof pointerY === 'number') {
         let ox = x - pointerX;
@@ -187,7 +177,6 @@ const StarfieldBackground = () => {
       pointerY = y;
     }
 
-    // Event handlers
     function onMouseMove(event: MouseEvent) {
       touchInput = false;
       movePointer(event.clientX, event.clientY);
@@ -204,19 +193,16 @@ const StarfieldBackground = () => {
       pointerY = null;
     }
 
-    // Initialize
     generate();
     resize();
     step();
 
-    // Add event listeners
     window.addEventListener('resize', resize);
     cvs.addEventListener('mousemove', onMouseMove);
     cvs.addEventListener('touchmove', onTouchMove);
     cvs.addEventListener('touchend', onMouseLeave);
     document.addEventListener('mouseleave', onMouseLeave);
 
-    // Cleanup
     return () => {
         window.removeEventListener('resize', resize);
         cvs.removeEventListener('mousemove', onMouseMove);

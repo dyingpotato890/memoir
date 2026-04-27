@@ -14,7 +14,7 @@ export const LinkButton = ({ link }: Props) => {
 
     return (
         <>
-            {/* ── Desktop (md+) — original design ── */}
+            {/* -- Desktop layout -- */}
             <button
                 onClick={handleClick}
                 className="hidden md:flex w-full bg-gray-900/60 backdrop-blur-md hover:bg-gradient-to-r hover:from-cyan-900/40 hover:to-blue-900/40 border border-gray-700 hover:border-cyan-400 rounded-2xl p-4 md:p-6 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/20 hover:-translate-y-0.5 group items-center"
@@ -43,18 +43,16 @@ export const LinkButton = ({ link }: Props) => {
                 </div>
             </button>
 
-            {/* ── Mobile — full-width tap target, title wraps naturally ── */}
+            {/* Mobile layout */}
             <button
                 onClick={handleClick}
                 className="md:hidden w-full text-left group"
             >
                 <div className="flex items-stretch gap-3 bg-gray-900/60 border border-gray-800 hover:border-cyan-500/30 rounded-xl overflow-hidden transition-all duration-200 active:scale-[0.98]">
-                    {/* Coloured left stripe + icon */}
                     <div className="flex-shrink-0 w-10 bg-gradient-to-b from-cyan-500/20 to-blue-600/20 border-r border-gray-800 flex items-center justify-center">
                         <ExternalLink className="w-4 h-4 text-cyan-400" strokeWidth={2} />
                     </div>
 
-                    {/* Title — allowed to wrap */}
                     <div className="flex-1 min-w-0 py-3 pr-2">
                         <span
                             className="text-sm font-semibold text-gray-100 leading-snug break-words"
@@ -64,7 +62,6 @@ export const LinkButton = ({ link }: Props) => {
                         </span>
                     </div>
 
-                    {/* View count — stacked vertically so it doesn't fight the title */}
                     <div className="flex-shrink-0 flex flex-col items-center justify-center px-3 border-l border-gray-800/60 gap-0.5">
                         <Eye className="w-3 h-3 text-cyan-500/60" strokeWidth={2} />
                         <span

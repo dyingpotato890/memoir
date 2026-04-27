@@ -11,6 +11,7 @@ import { useFontLoader } from "../hooks/useFontLoader";
 import type { GroupedEvent } from "../types/types";
 import { ReportSnackbar } from '../components/snackbar';
 
+// --- Helpers ---
 const groupEventsByYear = (events: GroupedEvent[]): Map<string, GroupedEvent[]> => {
     const map = new Map<string, GroupedEvent[]>();
     for (const event of events) {
@@ -43,20 +44,20 @@ const YearBreak = ({ year }: { year: string }) => (
 );
 
 const LandingPage = () => {
+    // --- Data & State ---
     useFontLoader();
     const { isLoading, groupedEvents } = useEvents();
 
     const [reportingEvent, setReportingEvent] = useState<string | null>(null);
     const [showSnackbar, setShowSnackbar] = useState(false);
 
-    // Push a history entry when opening the report page so the browser
-    // back button can close it instead of leaving the site
+    // Push history entry so browser back closes the report instead of leaving
     const openReport = (name: string) => {
         window.history.pushState({ report: name }, '');
         setReportingEvent(name);
     };
 
-    // Listen for browser back — pop closes the report page
+    // Close report on browser back
     useEffect(() => {
         const handlePop = () => setReportingEvent(null);
         window.addEventListener('popstate', handlePop);
@@ -70,8 +71,7 @@ const LandingPage = () => {
             <ReportPage
                 eventName={reportingEvent}
                 onBack={(submitted) => {
-                    // If user clicks the UI back button, pop the history entry
-                    // we pushed so the browser state stays in sync
+                    // Synchronize history if closed via UI
                     window.history.back();
                     if (submitted) setShowSnackbar(true);
                 }}
@@ -93,6 +93,8 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto px-3 md:px-8 pt-8 md:pt-16 pb-12 md:pb-24">
                     <PageHeader />
 
+
+                    {/* --- Timeline Content --- */}
                     <div className="relative mt-8 md:mt-12">
                         {groupedEvents.length === 0 ? (
                             <div className="text-center py-20">
